@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { initialState } from "./state";
 import { signUpThunk } from "./thunks/sign_up";
+import { verifyEmailThunk } from "./thunks/verify_email";
 
 const authSlice = createSlice({
   name: "auth",
@@ -23,7 +24,23 @@ const authSlice = createSlice({
       .addCase(signUpThunk.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as Error;
-      });
+      })
+      
+      // Verify Email
+      .addCase(verifyEmailThunk.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyEmailThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.auth = action.payload;
+        state.status = "signIn";
+      })
+      .addCase(verifyEmailThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as Error;
+      })
+      ;
   },
 });
 export const {} = authSlice.actions;

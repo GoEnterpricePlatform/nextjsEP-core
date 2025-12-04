@@ -7,7 +7,7 @@ export interface AuthState {
   error: Error | null;
 }
 
-export type AuthStatus = "uninitialized" | "needsVerification";
+export type AuthStatus = "uninitialized" | "needsVerification"|"signIn";
 
 export const initialState: AuthState = {
   status: "uninitialized",
