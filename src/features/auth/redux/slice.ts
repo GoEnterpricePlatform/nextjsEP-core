@@ -3,6 +3,7 @@ import { initialState } from "./state";
 import { signUpThunk } from "./thunks/sign_up";
 import { verifyEmailThunk } from "./thunks/verify_email";
 import { resendVerifyEmailThunk } from "./thunks/resend_verify_email";
+import { signInThunk } from "./thunks/sign_in";
 
 const authSlice = createSlice({
   name: "auth",
@@ -52,8 +53,27 @@ const authSlice = createSlice({
       })
       .addCase(resendVerifyEmailThunk.rejected, (state) => {
         state.isResending = false;
+      })
+      
+      // Sign in
+      .addCase(signInThunk.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(signInThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.auth = action.payload;
+
+        if (!state.auth!.user.email_verified) {
+          state.status = "needsVerification";
+        } else {
+          state.status = "signIn";
+        }
+      })
+      .addCase(signInThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as Error;
       });
-      ;
   },
 });
 export const {} = authSlice.actions;
