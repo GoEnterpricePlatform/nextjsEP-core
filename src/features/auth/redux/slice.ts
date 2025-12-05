@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { initialState } from "./state";
 import { signUpThunk } from "./thunks/sign_up";
 import { verifyEmailThunk } from "./thunks/verify_email";
+import { resendVerifyEmailThunk } from "./thunks/resend_verify_email";
 
 const authSlice = createSlice({
   name: "auth",
@@ -40,6 +41,18 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as Error;
       })
+
+      // Resend Verify Email
+      .addCase(resendVerifyEmailThunk.pending, (state) => {
+        state.isResending = true;
+      })
+      .addCase(resendVerifyEmailThunk.fulfilled, (state, action) => {
+        state.isResending = false;
+        state.auth!.otp_id = action.payload;
+      })
+      .addCase(resendVerifyEmailThunk.rejected, (state) => {
+        state.isResending = false;
+      });
       ;
   },
 });
