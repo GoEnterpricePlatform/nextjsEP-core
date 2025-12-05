@@ -3,10 +3,19 @@
 import { useAppSelector } from "@/shared/redux/hooks";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function HomePage() {
   const router = useRouter();
-  const { auth } = useAppSelector((state) => state.authReducer);
+  const { auth, status } = useAppSelector((state) => state.authReducer);
+
+  useEffect(() => {
+    if (!auth || !auth.user || status != "signIn") {
+      router.push("/auth/sign-in");
+    }
+  }, [auth, status, router]);
+
+  if (!auth || !auth.user) return null;
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
