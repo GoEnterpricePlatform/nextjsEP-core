@@ -5,6 +5,7 @@ export interface AuthState {
   auth: Auth | null;
   isLoading: boolean;
   error: Error | null;
+  isResending: boolean;
 }
 
 export type AuthStatus = "uninitialized" | "needsVerification"|"signIn";
@@ -14,4 +15,5 @@ export const initialState: AuthState = {
   isLoading: false,
   auth: null,
   error: null,
+  isResending: false,
 };

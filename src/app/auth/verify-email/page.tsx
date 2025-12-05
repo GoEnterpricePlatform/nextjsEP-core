@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { verifyEmailThunk } from "@/features/auth/redux/thunks/verify_email";
 import { useAppDispatch, useAppSelector } from "@/shared/redux/hooks";
 import { Loader2 } from "lucide-react";
+import { resendVerifyEmailThunk } from "@/features/auth/redux/thunks/resend_verify_email";
 
 function VerifyEmailPage() {
-  const { status, isLoading, error, auth } = useAppSelector(
+  const { status, isLoading,isResending, error, auth } = useAppSelector(
     (state) => state.authReducer
   );
 
@@ -21,7 +22,7 @@ function VerifyEmailPage() {
     if (status === "signIn" && !isLoading && !error) {
       router.push("/home");
     }
-  }, [status, isLoading, error, auth, router]);
+  }, [status, isLoading, isResending,error, auth, router]);
 
   function handleChange(value: string, index: number) {
     if (!/^[0-9]?$/.test(value)) return;
@@ -52,6 +53,10 @@ function VerifyEmailPage() {
     dispatch(
       verifyEmailThunk({ otpId: auth!.otp_id, otpCode, userId: auth!.user.id })
     );
+  }
+
+  function handleResend() {
+    dispatch(resendVerifyEmailThunk({ email: auth!.user.email }));
   }
 
   return (
@@ -107,6 +112,25 @@ function VerifyEmailPage() {
             )}
           </button>
         </form>
+        {/* Resend Code */}
+        <div className="mt-8 text-center text-sm text-slate-500">
+          Didn’t receive the code?{" "}
+          <button
+            onClick={handleResend}
+            disabled={isResending}
+            className="text-blue-600 hover:underline font-medium inline-flex items-center gap-1 disabled:opacity-70 transition-opacity"
+          >
+            <span className="relative flex items-center h-5">
+              {isResending && (
+                <Loader2 className="absolute left-0 h-4 w-4 animate-spin" />
+              )}
+
+              <span className={isResending ? "opacity-0" : "opacity-100"}>
+                Resend email
+              </span>
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
