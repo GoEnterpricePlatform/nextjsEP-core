@@ -1,22 +1,33 @@
 "use client";
 
-import { useAppSelector } from "@/shared/redux/hooks";
+import { signOutThunk } from "@/features/auth/redux/thunks/sign_out";
+import { useAppDispatch, useAppSelector } from "@/shared/redux/hooks";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function HomePage() {
   const router = useRouter();
-  const { auth, status } = useAppSelector((state) => state.authReducer);
+  const dispatch = useAppDispatch();
+
+  const { auth, status, isLoading, error } = useAppSelector(
+    (state) => state.authReducer
+  );
 
   useEffect(() => {
     if (!auth || !auth.user || status != "signIn") {
       router.push("/auth/sign-in");
     }
-  }, [auth, status, router]);
+    if (status === "signOut" && !isLoading && !error) {
+      router.push("/auth/sign-in");
+    }
+  }, [auth, status, isLoading, router, error]);
 
   if (!auth || !auth.user) return null;
 
+  const handleSignOut = () => {
+    dispatch(signOutThunk());
+  };
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* NAVBAR */}
@@ -45,7 +56,10 @@ export default function HomePage() {
           <span className="text-sm opacity-90">{auth!.user.email}</span>
 
           {/* Sign Out (always visible) */}
-          <button className="px-3 py-1 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium">
+          <button
+            onClick={handleSignOut}
+            className="px-3 py-1 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+          >
             Sign out
           </button>
         </div>

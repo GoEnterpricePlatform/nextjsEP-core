@@ -4,6 +4,7 @@ import { signUpThunk } from "./thunks/sign_up";
 import { verifyEmailThunk } from "./thunks/verify_email";
 import { resendVerifyEmailThunk } from "./thunks/resend_verify_email";
 import { signInThunk } from "./thunks/sign_in";
+import { signOutThunk } from "./thunks/sign_out";
 
 const authSlice = createSlice({
   name: "auth",
@@ -27,7 +28,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as Error;
       })
-      
+
       // Verify Email
       .addCase(verifyEmailThunk.pending, (state) => {
         state.isLoading = true;
@@ -54,7 +55,7 @@ const authSlice = createSlice({
       .addCase(resendVerifyEmailThunk.rejected, (state) => {
         state.isResending = false;
       })
-      
+
       // Sign in
       .addCase(signInThunk.pending, (state) => {
         state.isLoading = true;
@@ -73,6 +74,23 @@ const authSlice = createSlice({
       .addCase(signInThunk.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as Error;
+      })
+
+      // Sign out
+      .addCase(signOutThunk.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(signOutThunk.fulfilled, (state) => {
+        state.isLoading = false;
+        state.status = "signOut";
+        state.auth = null;
+      })
+      .addCase(signOutThunk.rejected, (state) => {
+        state.isLoading = false;
+        state.status = "signOut";
+        state.auth = null;
+        state.error = null;
       });
   },
 });

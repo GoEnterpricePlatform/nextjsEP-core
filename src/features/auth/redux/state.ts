@@ -8,7 +8,11 @@ export interface AuthState {
   isResending: boolean;
 }
 
-export type AuthStatus = "uninitialized" | "needsVerification"|"signIn";
+export type AuthStatus =
+  | "uninitialized"
+  | "needsVerification"
+  | "signIn"
+  | "signOut";
 
 export const initialState: AuthState = {
   status: "uninitialized",
