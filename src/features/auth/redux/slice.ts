@@ -5,13 +5,33 @@ import { verifyEmailThunk } from "./thunks/verify_email";
 import { resendVerifyEmailThunk } from "./thunks/resend_verify_email";
 import { signInThunk } from "./thunks/sign_in";
 import { signOutThunk } from "./thunks/sign_out";
+import { initializeThunk } from "./thunks/initialize";
 
 const authSlice = createSlice({
   name: "auth",
   reducers: {},
   initialState,
   extraReducers: (builder) => {
-    builder // Sign up
+    builder
+
+      // Initialize
+      .addCase(initializeThunk.fulfilled, (state, action) => {
+        // If the response is empty, do not update auth
+        if (!action.payload || Object.keys(action.payload).length === 0) {
+          state.isInitializing = false;
+          return; // nothing to update
+        }
+
+        // If there is data (session + user)
+        state.auth = action.payload;
+        state.isInitializing = false;
+      })
+      .addCase(initializeThunk.rejected, (state) => {
+        state.auth = null;
+        state.isInitializing = false;
+      })
+
+      // Sign up
       .addCase(signUpThunk.pending, (state) => {
         state.isLoading = true;
         state.error = null;

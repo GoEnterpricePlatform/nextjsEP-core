@@ -1,9 +1,11 @@
 import { Auth } from "../domain/domain";
 
+// "isAuthenticated" allows you to protect routes
 export interface AuthState {
   status: AuthStatus;
   auth: Auth | null;
   isLoading: boolean;
+  isInitializing: boolean;
   error: Error | null;
   isResending: boolean;
 }
@@ -20,4 +22,5 @@ export const initialState: AuthState = {
   auth: null,
   error: null,
   isResending: false,
+  isInitializing: true,
 };

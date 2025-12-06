@@ -10,20 +10,26 @@ export default function HomePage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { auth, status, isLoading, error } = useAppSelector(
+  const { auth, status, isLoading, isInitializing, error } = useAppSelector(
     (state) => state.authReducer
   );
 
   useEffect(() => {
-    if (!auth || !auth.user || status != "signIn") {
-      router.push("/auth/sign-in");
-    }
     if (status === "signOut" && !isLoading && !error) {
       router.push("/auth/sign-in");
+      return;
     }
-  }, [auth, status, isLoading, router, error]);
 
-  if (!auth || !auth.user) return null;
+    if (!isInitializing && !auth) {
+      router.push("/auth/sign-in");
+    }
+  }, [auth, status, isLoading, isInitializing, error, router]);
+
+  // Do not render the /home view while the authentication state is initializing
+  if (isInitializing) return null;
+
+  // After initialization, validate the authentication state
+  if (!auth) return null;
 
   const handleSignOut = () => {
     dispatch(signOutThunk());
