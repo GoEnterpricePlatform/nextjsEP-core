@@ -9,7 +9,13 @@ import { initializeThunk } from "./thunks/initialize";
 
 const authSlice = createSlice({
   name: "auth",
-  reducers: {},
+  reducers: {
+    setNewSession: (state, action) => {
+      if (state.auth) {
+        state.auth.session = action.payload;
+      }
+    },
+  },
   initialState,
   extraReducers: (builder) => {
     builder
@@ -114,5 +120,5 @@ const authSlice = createSlice({
       });
   },
 });
-export const {} = authSlice.actions;
+export const {setNewSession} = authSlice.actions;
 export default authSlice.reducer;
