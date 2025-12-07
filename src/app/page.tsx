@@ -2,12 +2,15 @@
 
 import { useAppSelector } from "@/shared/redux/hooks";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 function LandingPage() {
   const { status, isLoading, error, auth } = useAppSelector(
     (state) => state.authReducer
   );
+
+  const router = useRouter();
 
   useEffect(() => {}, [status, isLoading, error, auth]);
 
@@ -36,6 +39,13 @@ function LandingPage() {
             )}
 
             <span className="text-sm opacity-90">{auth.user.email}</span>
+
+            <button
+              onClick={() => router.push("/home")}
+              className="px-4 py-1 bg-white text-black rounded-md text-sm font-medium hover:bg-gray-100 transition"
+            >
+              Go to Home
+            </button>
           </div>
         ) : (
           // If you are not authenticated
