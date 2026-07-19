@@ -18,6 +18,11 @@ export default function Sidebar() {
 
   const roles = auth.session.jwtPayload.role ?? [];
 
+  // Use this constant if you want to test that it
+  // loads dashboard sections according to the role;
+  // you also have to do it from Sidebar
+  // const roles = ["MANAGER"];
+
   const menuByRole = dashboardMenu.filter((item) =>
     item.roles.some((role) => roles.includes(role)),
   );
