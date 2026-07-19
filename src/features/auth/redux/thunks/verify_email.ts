@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Auth } from "../../domain/domain";
 import { verifyEmail } from "../../api/verify_email";
+import { decodeAccessToken } from "../../utils/decode_access_token";
 
 interface VerifyEmailParams {
   otpId: string;
@@ -15,9 +16,9 @@ export const verifyEmailThunk = createAsyncThunk<Auth, VerifyEmailParams>(
       const resp = await verifyEmail(
         payload.otpId,
         payload.otpCode,
-        payload.userId
+        payload.userId,
       );
-
+      resp.session.jwtPayload = decodeAccessToken(resp.session.access_token);
       return resp;
     } catch (err) {
       if (err instanceof Error) {
@@ -25,5 +26,5 @@ export const verifyEmailThunk = createAsyncThunk<Auth, VerifyEmailParams>(
       }
       return rejectWithValue({ message: "Unexpected error occurred" });
     }
-  }
+  },
 );
