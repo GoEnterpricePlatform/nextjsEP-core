@@ -4,29 +4,26 @@ Frontend template built with **Next.js**, designed to be used as a base for mode
 
 This project is designed with clean structure and best practices in mind, allowing easy integration with backend APIs and fast iteration during development.
 
-## Landing
+## Landing, logged in user
 
-<img width="1358" height="647" alt="image" src="https://github.com/user-attachments/assets/a0014641-72a0-4d10-80ce-094598395979" />
+<img width="450" height="238" alt="image" src="https://github.com/user-attachments/assets/a0014641-72a0-4d10-80ce-094598395979" /> 
+<img width="450" height="238" alt="image" src="https://github.com/user-attachments/assets/7928eaab-8b84-4513-862b-a2cbedd8c884" />
 
-## Landing - logged in user
+## Sign in, Home - Access will be granted if the user is logged in.
 
-<img width="1366" height="649" alt="image" src="https://github.com/user-attachments/assets/7928eaab-8b84-4513-862b-a2cbedd8c884" />
+<img width="450" height="238" alt="image" src="https://github.com/user-attachments/assets/09ab0124-bc2e-487c-9600-429b998a2eae" />
+<img width="450" height="238" alt="image" src="https://github.com/user-attachments/assets/609d9ada-09fc-4bd2-ad03-c361db82ebc2" />
 
-## Home - Access will be granted if the user is logged in.
+## Sign up, Verify account
 
-<img width="1366" height="646" alt="image" src="https://github.com/user-attachments/assets/609d9ada-09fc-4bd2-ad03-c361db82ebc2" />
+<img width="450" height="238" alt="image" src="https://github.com/user-attachments/assets/0392d677-078b-4479-b594-733278fbd534" />
+<img width="450" height="238" alt="image" src="https://github.com/user-attachments/assets/b63682b7-4c4d-4774-be2c-cb3290dac307" />
 
-## Sign in
+## Role-based dashboard
+<img width="450" height="238" alt="image" src="https://github.com/user-attachments/assets/822e39cc-7cff-4539-9877-efed5456dfb0" />
+<img width="450" height="238" alt="image" src="https://github.com/user-attachments/assets/0abe3d45-a6d5-49e2-94ba-b9b6c13f3721" />
 
-<img width="1366" height="647" alt="image" src="https://github.com/user-attachments/assets/09ab0124-bc2e-487c-9600-429b998a2eae" />
 
-## Sign up
-
-<img width="1366" height="651" alt="image" src="https://github.com/user-attachments/assets/0392d677-078b-4479-b594-733278fbd534" />
-
-## Verify account
-
-<img width="1366" height="648" alt="image" src="https://github.com/user-attachments/assets/b63682b7-4c4d-4774-be2c-cb3290dac307" />
 
 ## Backend
 
