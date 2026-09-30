@@ -1,5 +1,12 @@
 import { RoleStr } from "@/features/auth/domain/types";
-import { FileText, Home, BarChart3, UserLock, LucideIcon } from "lucide-react";
+import {
+  FileText,
+  Home,
+  BarChart3,
+  UserLock,
+  LucideIcon,
+  Box,
+} from "lucide-react";
 
 export interface MenuItem {
   title: string;
@@ -28,6 +35,12 @@ export const dashboardMenu: MenuItem[] = [
     title: "Posts",
     href: "/dashboard/posts",
     icon: FileText,
+    roles: ["ROLE_SYSTEM_ADMIN", "EMPLOYEE"],
+  },
+  {
+    title: "Catalog",
+    href: "/dashboard/catalog",
+    icon: Box,
     roles: ["ROLE_SYSTEM_ADMIN", "EMPLOYEE"],
   },
   {
