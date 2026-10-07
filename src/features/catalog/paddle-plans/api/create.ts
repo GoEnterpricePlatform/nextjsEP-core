@@ -1,8 +1,7 @@
 // features/catalog/paddle-plans/api/api.ts
 
-import { AxiosError } from "axios";
-
 import { api } from "@/shared/api/axios_client";
+import { throwApiError } from "./error";
 
 import {
   CreatePaddlePlanRequest,
@@ -22,19 +21,4 @@ export async function createPaddlePlan(
   } catch (err) {
     throwApiError(err);
   }
-}
-
-function throwApiError(err: unknown): never {
-  const axiosError = err as AxiosError;
-
-  if (axiosError.response?.data) {
-    const backendError = axiosError.response.data as {
-      code: string;
-      msg: string;
-    };
-
-    throw new Error(backendError.msg);
-  }
-
-  throw err;
 }
