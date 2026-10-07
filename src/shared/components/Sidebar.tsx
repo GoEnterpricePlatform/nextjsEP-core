@@ -36,7 +36,7 @@ export default function Sidebar() {
       <nav className="flex flex-col gap-2">
         {menuByRole.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
 
           return (
             <Link
