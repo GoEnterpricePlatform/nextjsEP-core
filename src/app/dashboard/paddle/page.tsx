@@ -71,7 +71,7 @@ export default function PaddlePlansPage() {
           <span className="text-sm text-gray-500">{count} total</span>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[750px] text-left text-sm">
+          <table className="w-full min-w-[820px] text-left text-sm">
             <thead className="bg-gray-50 text-gray-600">
               <tr>
                 <th scope="col" className="px-5 py-3 font-medium">
@@ -82,6 +82,9 @@ export default function PaddlePlansPage() {
                 </th>
                 <th scope="col" className="px-5 py-3 font-medium">
                   Items
+                </th>
+                <th scope="col" className="px-5 py-3 font-medium">
+                  Order
                 </th>
                 <th scope="col" className="px-5 py-3 font-medium">
                   Updated
@@ -113,6 +116,9 @@ export default function PaddlePlansPage() {
                     </td>
                     <td className="px-5 py-4 text-gray-600">
                       {plan.items?.length ?? 0}
+                    </td>
+                    <td className="px-5 py-4 text-gray-600">
+                      {plan.order}
                     </td>
                     <td className="px-5 py-4 text-gray-600">
                       {formatDate(plan.updated_at)}

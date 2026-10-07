@@ -1,52 +1,180 @@
 "use client";
 
-import CustomButton from "@/shared/components/CustomButton";
-import { UserAvatar } from "@/shared/components/UserAvatar";
-import { useAppSelector } from "@/shared/redux/hooks";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-function LandingPage() {
-  const { status, isLoading, error, auth } = useAppSelector(
-    (state) => state.authReducer,
-  );
+import { listPaddlePlansThunk } from "@/features/catalog/paddle-plans/redux/thunks/list";
+import type {
+  PaddlePlanItem,
+  PaddlePlanListItem,
+} from "@/features/catalog/paddle-plans/domain/domain";
+import CustomButton from "@/shared/components/CustomButton";
+import { UserAvatar } from "@/shared/components/UserAvatar";
+import { useAppDispatch, useAppSelector } from "@/shared/redux/hooks";
 
-  const router = useRouter();
+function formatPrice(amount: string, currency: string) {
+  const value = Number(amount);
+  if (!Number.isFinite(value)) return null;
 
-  useEffect(() => {}, [status, isLoading, error, auth]);
+  try {
+    const formatter = new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+    });
+    const fractionDigits = formatter.resolvedOptions().maximumFractionDigits ?? 2;
+    return formatter.format(value / 10 ** fractionDigits);
+  } catch {
+    return `${currency} ${value / 100}`;
+  }
+}
+
+function cycleLabel(cycle: { interval: string; frequency: number } | null) {
+  if (!cycle) return "One-time payment";
+  const interval = cycle.interval.toLowerCase();
+  return cycle.frequency === 1
+    ? `per ${interval}`
+    : `every ${cycle.frequency} ${interval}s`;
+}
+
+function ItemCard({
+  plan,
+  item,
+}: {
+  plan: PaddlePlanListItem;
+  item: PaddlePlanItem;
+}) {
+  const product = plan.paddle_product;
+  const price = item.paddle_price;
+  const itemOptions = item.options?.map((option) => option.var_opt_name).filter(Boolean);
+  const itemName = itemOptions?.length ? itemOptions.join(" · ") : null;
+  const formattedPrice = price && formatPrice(price.amount, price.currency_code);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      {/* NAVBAR */}
-      <nav className="w-full bg-black text-white px-6 py-2 flex items-center justify-between shadow-md">
-        <div
-          className="text-lg font-semibold cursor-pointer"
-          onClick={() => (window.location.href = "/")}
-        >
-          MyApp
+    <article className="flex w-full max-w-sm flex-col rounded-lg border border-gray-200 bg-white p-7 shadow-sm">
+      {product?.image_url && (
+        // Paddle product images may be hosted outside this application.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={product.image_url}
+          alt=""
+          className="mb-5 h-14 w-14 rounded-md object-cover"
+        />
+      )}
+      <p className="text-sm font-medium text-gray-500">{plan.name}</p>
+      <h2 className="mt-2 text-2xl font-semibold text-gray-950">
+        {product?.name || plan.name}
+      </h2>
+      {itemName && <p className="mt-2 text-lg text-gray-700">{itemName}</p>}
+      {(plan.description || product?.description) && (
+        <p className="mt-4 text-base leading-7 text-gray-600">
+          {plan.description || product?.description}
+        </p>
+      )}
+
+      <div className="mt-6 border-t border-gray-200 pt-5">
+        <div className="flex flex-wrap items-baseline gap-x-2">
+          <span className="text-4xl font-semibold tracking-tight text-gray-950">
+            {formattedPrice ?? "Price unavailable"}
+          </span>
+          {price && <span className="text-base text-gray-500">{cycleLabel(price.billing_cycle)}</span>}
         </div>
+      </div>
+
+      {!!item.features?.length && (
+        <ul className="mt-6 flex-1 space-y-3 text-base leading-6 text-gray-700">
+          {item.features.map((feature, index) => (
+            <li key={`${item.id}-${index}`} className="flex gap-3">
+              <span aria-hidden="true" className="font-semibold text-gray-900">✓</span>
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <Link
+        href="/auth/sign-in"
+        className="mt-8 inline-flex min-h-12 items-center justify-center rounded-md bg-black px-5 py-3 text-base font-semibold text-white transition hover:bg-gray-800"
+      >
+        Get started
+      </Link>
+    </article>
+  );
+}
+
+function LandingPage() {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { auth } = useAppSelector((state) => state.authReducer);
+  const { paddlePlans, isListing, error: plansError } = useAppSelector(
+    (state) => state.paddlePlansReducer,
+  );
+
+  useEffect(() => {
+    dispatch(listPaddlePlansThunk(1));
+  }, [dispatch]);
+
+  const items = paddlePlans.flatMap((plan) =>
+    plan.items.map((item) => ({ plan, item })),
+  );
+
+  return (
+    <div className="flex min-h-screen flex-col bg-white text-black">
+      <nav className="flex w-full items-center justify-between bg-black px-6 py-3 text-white shadow-md">
+        <Link href="/" className="text-lg font-semibold">
+          MyApp
+        </Link>
 
         {auth?.user ? (
           <div className="flex items-center gap-3">
             <UserAvatar email={auth.user.email} imgUrl={auth.user.img_url} />
-
-            <span className="text-sm opacity-90">{auth.user.email}</span>
-
-            <CustomButton
-              onClick={() => router.push("/home")}
-              text="Go to Home"
-            />
+            <span className="hidden text-sm opacity-90 sm:inline">{auth.user.email}</span>
+            <CustomButton onClick={() => router.push("/home")} text="Go to Home" />
           </div>
         ) : (
-          // If you are not authenticated
-          <button
-            onClick={() => (window.location.href = "/auth/sign-in")}
-            className="px-4 py-1 bg-white text-black rounded-md text-sm font-medium hover:bg-gray-100 transition"
+          <Link
+            href="/auth/sign-in"
+            className="rounded-md bg-white px-4 py-2 text-sm font-medium text-black transition hover:bg-gray-100"
           >
             Sign in
-          </button>
+          </Link>
         )}
       </nav>
+
+      <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-14 sm:py-20">
+        <header className="mx-auto max-w-3xl text-center">
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Plans
+          </h1>
+          <p className="mt-4 text-lg leading-7 text-gray-600">
+            Compare available options and choose what works for you.
+          </p>
+        </header>
+
+        {plansError && (
+          <p role="alert" className="mx-auto mt-10 max-w-2xl rounded-md border border-red-200 bg-red-50 p-4 text-base text-red-700">
+            Unable to load plans right now.
+          </p>
+        )}
+        {isListing ? (
+          <p role="status" className="mt-14 text-center text-base text-gray-500">
+            Loading plans…
+          </p>
+        ) : items.length ? (
+          <section
+            aria-label="Available plan items"
+            className="mx-auto mt-12 flex max-w-7xl flex-wrap justify-center gap-6"
+          >
+            {items.map(({ plan, item }) => (
+              <ItemCard key={item.id} plan={plan} item={item} />
+            ))}
+          </section>
+        ) : !plansError ? (
+          <p className="mt-14 text-center text-base text-gray-500">
+            Plans will be available soon.
+          </p>
+        ) : null}
+      </main>
     </div>
   );
 }
