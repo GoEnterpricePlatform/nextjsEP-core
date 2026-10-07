@@ -112,6 +112,7 @@ export default function PaddlePlanForm({ editId }: { editId?: string }) {
   const [description, setDescription] = useState("");
 
   const [paddleProductId, setPaddleProductId] = useState("");
+  const [order, setOrder] = useState(0);
   const [saved, setSaved] = useState(false);
   const [isInitializing, setIsInitializing] = useState(!!editId);
   const originalItems = useRef<PlanItemForm[]>([]);
@@ -170,6 +171,7 @@ export default function PaddlePlanForm({ editId }: { editId?: string }) {
       setName(plan.name);
       setDescription(plan.description ?? "");
       setPaddleProductId(plan.paddle_product_id);
+      setOrder(plan.order ?? 0);
       setProductWithVariants(plan.items.some((item) => (item.var_option_ids?.length ?? 0) > 0));
       const loadedItems = plan.items.map((item) => ({
         id: item.id,
@@ -498,6 +500,7 @@ export default function PaddlePlanForm({ editId }: { editId?: string }) {
       description: description.trim() || null,
 
       paddle_product_id: paddleProductId.trim(),
+      order,
 
       items: items.map(
         (item): CreatePaddlePlanItem => ({
@@ -526,6 +529,7 @@ export default function PaddlePlanForm({ editId }: { editId?: string }) {
       name: name.trim(),
       description: description.trim() || null,
       paddle_product_id: paddleProductId.trim(),
+      order,
       items: items.map((item) => ({
         ...(item.id ? { id: item.id } : {}),
         features: item.features.map((feature) => feature.trim()).filter(Boolean),
@@ -566,6 +570,7 @@ export default function PaddlePlanForm({ editId }: { editId?: string }) {
     !isVariationLoading &&
     name.trim() !== "" &&
     paddleProductId.trim() !== "" &&
+    order >= 0 &&
     items.length > 0 &&
     !hasInvalidVariations &&
     !hasUnknownOptions &&
@@ -662,6 +667,23 @@ export default function PaddlePlanForm({ editId }: { editId?: string }) {
                   disabled={isLoading}
                   className="w-full resize-none rounded-md border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black disabled:bg-gray-100"
                 />
+              </div>
+
+              <div>
+                <label htmlFor="plan-order" className="mb-2 block text-sm font-medium">
+                  Display order
+                </label>
+                <input
+                  id="plan-order"
+                  type="number"
+                  min={0}
+                  step={1}
+                  value={order}
+                  onChange={(event) => { setOrder(Number(event.target.value)); setSaved(false); }}
+                  disabled={isLoading}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-black disabled:bg-gray-100"
+                />
+                <p className="mt-1 text-xs text-gray-500">Lower numbers appear first.</p>
               </div>
             </div>
           </section>
