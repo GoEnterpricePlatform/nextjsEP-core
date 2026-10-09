@@ -47,6 +47,16 @@ export interface PaddlePrice {
   status: string;
 }
 
+export interface PaddleCheckout {
+  transaction_id: string;
+  plan_id: string;
+  plan_item_id: string;
+  paddle_price_id: string;
+  status: string;
+  subscription_id?: string;
+  updated_at: string;
+}
+
 export interface CreatePaddlePlanRequest {
   name: string;
   description: string | null;
