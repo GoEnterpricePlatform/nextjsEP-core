@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Script from "next/script";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-import { createPaddleCheckout } from "@/features/catalog/paddle-plans/api/checkout";
+import { createPaddleTransaction } from "@/features/catalog/paddle-plans/api/checkout";
 import { listPaddlePlansThunk } from "@/features/catalog/paddle-plans/redux/thunks/list";
 import type {
   PaddlePlanItem,
@@ -68,11 +68,13 @@ function ItemCard({
   plan,
   item,
   isStartingCheckout,
+  isSelectedForCheckout,
   onCheckout,
 }: {
   plan: PaddlePlanListItem;
   item: PaddlePlanItem;
   isStartingCheckout: boolean;
+  isSelectedForCheckout: boolean;
   onCheckout: () => void;
 }) {
   const product = plan.paddle_product;
@@ -129,21 +131,24 @@ function ItemCard({
         disabled={isStartingCheckout}
         className="mt-8 inline-flex min-h-12 items-center justify-center rounded-md bg-black px-5 py-3 text-base font-semibold text-white transition hover:bg-gray-800 disabled:cursor-wait disabled:opacity-60"
       >
-        {isStartingCheckout ? "Opening checkout…" : "Get started"}
+        {isStartingCheckout ? "Opening checkout…" : isSelectedForCheckout ? "Continue checkout" : "Get started"}
       </button>
     </article>
   );
 }
 
-function LandingPage() {
+function LandingPageContent() {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { auth } = useAppSelector((state) => state.authReducer);
   const { paddlePlans, isListing, error: plansError } = useAppSelector(
     (state) => state.paddlePlansReducer,
   );
   const [paddleReady, setPaddleReady] = useState(false);
   const [startingItemId, setStartingItemId] = useState<string | null>(null);
+  const selectedCheckoutPlanId = searchParams.get("checkout_plan_id");
+  const selectedCheckoutItemId = searchParams.get("checkout_item_id");
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const paddleToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
 
@@ -172,6 +177,11 @@ function LandingPage() {
   };
 
   const startCheckout = async (plan: PaddlePlanListItem, item: PaddlePlanItem) => {
+    if (!auth?.user) {
+      const returnTo = `/?checkout_plan_id=${encodeURIComponent(plan.id)}&checkout_item_id=${encodeURIComponent(item.id)}`;
+      router.push(`/auth/sign-in?next=${encodeURIComponent(returnTo)}`);
+      return;
+    }
     if (!paddleReady || !window.Paddle) {
       setCheckoutError("Checkout is not ready yet. Please try again in a moment.");
       return;
@@ -179,10 +189,13 @@ function LandingPage() {
     setCheckoutError(null);
     setStartingItemId(item.id);
     try {
-      const checkout = await createPaddleCheckout(plan.id, item.id);
-      const successUrl = `${window.location.origin}/checkout/success?transaction_id=${encodeURIComponent(checkout.transaction_id)}`;
+      const transaction = await createPaddleTransaction(plan.id, item.id);
+      if (!transaction.paddle_transaction_id) {
+        throw new Error("The server did not return a Paddle transaction ID.");
+      }
+      const successUrl = `${window.location.origin}/checkout/success?transaction_id=${encodeURIComponent(transaction.paddle_transaction_id)}`;
       window.Paddle.Checkout.open({
-        transactionId: checkout.transaction_id,
+        transactionId: transaction.paddle_transaction_id,
         ...(auth?.user?.email ? { customer: { email: auth.user.email } } : {}),
         settings: { successUrl, displayMode: "overlay", theme: "light" },
       });
@@ -268,6 +281,7 @@ function LandingPage() {
                 plan={plan}
                 item={item}
                 isStartingCheckout={startingItemId === item.id}
+                isSelectedForCheckout={selectedCheckoutPlanId === plan.id && selectedCheckoutItemId === item.id}
                 onCheckout={() => startCheckout(plan, item)}
               />
             ))}
@@ -282,4 +296,10 @@ function LandingPage() {
   );
 }
 
-export default LandingPage;
+export default function LandingPage() {
+  return (
+    <Suspense fallback={<p className="p-8 text-center text-gray-500">Loading plans…</p>}>
+      <LandingPageContent />
+    </Suspense>
+  );
+}

@@ -18,9 +18,10 @@ function SignInPage() {
 
   useEffect(() => {
     if (status == "signIn" && !isLoading && !error) {
-      router.push("/home");
+      router.push(getSafeNextPath());
     } else if (status == "needsVerification" && !isLoading && !error) {
-      router.push("/auth/verify-email");
+      const next = getSafeNextPath();
+      router.push(next === "/home" ? "/auth/verify-email" : `/auth/verify-email?next=${encodeURIComponent(next)}`);
     }
     
   }, [status, isLoading, error, auth, router]);
@@ -102,6 +103,13 @@ function SignInPage() {
       </div>
     </div>
   );
+}
+
+function getSafeNextPath() {
+  const requestedNext = new URLSearchParams(window.location.search).get("next");
+  return requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//") && !requestedNext.startsWith("/\\") && !requestedNext.includes("\\")
+    ? requestedNext
+    : "/home";
 }
 
 export default SignInPage;

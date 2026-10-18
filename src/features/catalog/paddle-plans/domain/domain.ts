@@ -47,13 +47,19 @@ export interface PaddlePrice {
   status: string;
 }
 
-export interface PaddleCheckout {
-  transaction_id: string;
+export interface PaddleTransaction {
+  id: string;
+  paddle_transaction_id: string;
+  user_id?: string;
+  subscription_id?: string;
+  customer_id?: string;
   plan_id: string;
   plan_item_id: string;
-  paddle_price_id: string;
   status: string;
-  subscription_id?: string;
+  currency_code: string;
+  subtotal: number;
+  tax: number;
+  total: number;
   updated_at: string;
 }
 

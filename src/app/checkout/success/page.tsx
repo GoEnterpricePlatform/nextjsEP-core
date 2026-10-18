@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useEffect, useState } from "react";
 
-import { getPaddleCheckout } from "@/features/catalog/paddle-plans/api/checkout";
+import { getPaddleTransaction } from "@/features/catalog/paddle-plans/api/checkout";
 
 type PaymentStatus = "loading" | "pending" | "completed" | "canceled" | "past_due" | "error";
 
@@ -23,14 +23,14 @@ function CheckoutStatus() {
 
     const checkStatus = async () => {
       try {
-        const checkout = await getPaddleCheckout(transactionId);
+        const transaction = await getPaddleTransaction(transactionId);
         if (!active) return;
-        if (checkout.status === "completed") {
+        if (transaction.status === "completed") {
           setStatus("completed");
           return;
         }
-        if (checkout.status === "canceled" || checkout.status === "past_due") {
-          setStatus(checkout.status);
+        if (transaction.status === "canceled" || transaction.status === "past_due") {
+          setStatus(transaction.status);
           return;
         }
         setStatus("pending");
