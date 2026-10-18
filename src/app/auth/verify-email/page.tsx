@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 import { resendVerifyEmailThunk } from "@/features/auth/redux/thunks/resend_verify_email";
 
 function VerifyEmailPage() {
-  const { status, isLoading,isResending, error, auth } = useAppSelector(
+  const { status, isLoading, isInitializing, isResending, error, auth } = useAppSelector(
     (state) => state.authReducer
   );
 
@@ -20,9 +20,15 @@ function VerifyEmailPage() {
 
   useEffect(() => {
     if (status === "signIn" && !isLoading && !error) {
-      router.push("/home");
+      const requestedNext = new URLSearchParams(window.location.search).get("next");
+      const safeNext = requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//") && !requestedNext.startsWith("/\\") && !requestedNext.includes("\\")
+        ? requestedNext
+        : "/home";
+      router.push(safeNext);
+    } else if (!auth && !isInitializing) {
+      router.replace("/auth/sign-in");
     }
-  }, [status, isLoading, isResending,error, auth, router]);
+  }, [status, isLoading, isInitializing, isResending, error, auth, router]);
 
   function handleChange(value: string, index: number) {
     if (!/^[0-9]?$/.test(value)) return;
@@ -47,6 +53,7 @@ function VerifyEmailPage() {
 
   function handleSubmit(ev: React.FormEvent) {
     ev.preventDefault();
+    if (!auth) return;
     const otpCode = digits.join("");
     if (otpCode.length !== 6) return;
 
@@ -56,7 +63,12 @@ function VerifyEmailPage() {
   }
 
   function handleResend() {
+    if (!auth) return;
     dispatch(resendVerifyEmailThunk({ email: auth!.user.email }));
+  }
+
+  if (!auth) {
+    return <p className="p-8 text-center text-gray-500">Loading account…</p>;
   }
 
   return (

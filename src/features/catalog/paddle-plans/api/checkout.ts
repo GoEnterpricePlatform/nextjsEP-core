@@ -1,10 +1,10 @@
 import { api } from "@/shared/api/axios_client";
-import type { PaddleCheckout } from "../domain/domain";
+import type { PaddleTransaction } from "../domain/domain";
 import { throwApiError } from "./error";
 
-export async function createPaddleCheckout(planId: string, itemId: string): Promise<PaddleCheckout> {
+export async function createPaddleTransaction(planId: string, itemId: string): Promise<PaddleTransaction> {
   try {
-    const response = await api.post<PaddleCheckout>("/paddle/checkout", {
+    const response = await api.post<PaddleTransaction>("/paddle/checkout", {
       plan_id: planId,
       item_id: itemId,
     });
@@ -14,10 +14,10 @@ export async function createPaddleCheckout(planId: string, itemId: string): Prom
   }
 }
 
-export async function getPaddleCheckout(transactionId: string): Promise<PaddleCheckout> {
+export async function getPaddleTransaction(paddleTransactionId: string): Promise<PaddleTransaction> {
   try {
-    const response = await api.get<PaddleCheckout>(
-      `/paddle/checkout/${encodeURIComponent(transactionId)}`,
+    const response = await api.get<PaddleTransaction>(
+      `/paddle/transactions/${encodeURIComponent(paddleTransactionId)}`,
     );
     return response.data;
   } catch (error) {
